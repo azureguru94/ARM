@@ -1,0 +1,295 @@
+/*
+This template will deploy 7 alerts on application insights as following : 
+
+1-server memory more than 80 %
+2-server exceptions (dynamic threeshold)
+3-dependency call failures (dynamic threeshold)
+4-server cpu more than 80 % 
+5-failed requests increasing (dynamic threeshold)
+6-increasing http requests rate (dynamic threeshold)
+7-average server response time more than 30 second
+
+*/
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"appinsights_id": {
+			"type": "String",
+			"metadata": {
+				"description": "enter resource id as following '/subscriptions/(subscription-id)/resourceGroups/(resource group name)/providers/microsoft.insights/components/(app_insights-name)'"
+			}
+		},
+		"actiongroup_id": {
+			"type": "String",
+			"metadata": {
+				"description": "enter resource id as following '/subscriptions/(subscription-id)/resourceGroups/(resource group name)/providers/microsoft.insights/actiongroups/(action-group-name)'"
+			}
+		},
+
+		"custom_domain": {
+			"type": "string",
+			"metadata": {
+				"description": "website name ex: mywebsite.com"
+			}
+		}
+	},
+	"variables": {},
+	"resources": [{
+			"type": "microsoft.insights/metricAlerts",
+			"apiVersion": "2018-03-01",
+			"name": "[concat (parameters ('custom_domain') , ' - ', 'server exceptions increasing')]",
+			"location": "global",
+			"properties": {
+				"severity": 1,
+				"enabled": true,
+				"scopes": [
+					"[parameters('appinsights_id')]"
+				],
+				"evaluationFrequency": "PT5M",
+				"windowSize": "PT5M",
+				"criteria": {
+					"allOf": [{
+						"alertSensitivity": "High",
+						"failingPeriods": {
+							"numberOfEvaluationPeriods": 4,
+							"minFailingPeriodsToAlert": 4
+						},
+						"name": "Metric1",
+						"metricNamespace": "microsoft.insights/components",
+						"metricName": "exceptions/count",
+						"operator": "GreaterThan",
+						"timeAggregation": "Count",
+						"criterionType": "DynamicThresholdCriterion"
+					}],
+					"odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+				},
+				"autoMitigate": true,
+				"targetResourceType": "microsoft.insights/components",
+				"actions": [{
+						"actionGroupId": "[parameters('actiongroup1_id')]",
+						"webHookProperties": {}
+					}
+
+				]
+			}
+		},
+
+		{
+			"type": "microsoft.insights/metricAlerts",
+			"apiVersion": "2018-03-01",
+			"name": "[concat (parameters ('custom_domain') , ' - ', 'server memory more than 80 percent')]",
+			"location": "global",
+			"properties": {
+				"severity": 2,
+				"enabled": true,
+				"scopes": [
+					"[parameters('appinsights_id')]"
+				],
+				"evaluationFrequency": "PT1M",
+				"windowSize": "PT5M",
+				"criteria": {
+					"allOf": [{
+						"threshold": 80,
+						"name": "Metric1",
+						"metricNamespace": "Azure.ApplicationInsights",
+						"metricName": "AverageMemoryUsage",
+						"operator": "GreaterThan",
+						"timeAggregation": "Average",
+						"criterionType": "StaticThresholdCriterion"
+					}],
+					"odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+				},
+				"autoMitigate": true,
+				"targetResourceType": "microsoft.insights/components",
+				"actions": [{
+					"actionGroupId": "[parameters('actiongroup1_id')]",
+					"webHookProperties": {}
+				}]
+			}
+		},
+		{
+			"type": "microsoft.insights/metricAlerts",
+			"apiVersion": "2018-03-01",
+			"name": "[concat (parameters ('custom_domain') , ' - ', 'server CPU more than 80 percent')]",
+			"location": "global",
+			"properties": {
+				"severity": 2,
+				"enabled": true,
+				"scopes": [
+					"[parameters('appinsights_id')]"
+				],
+				"evaluationFrequency": "PT1M",
+				"windowSize": "PT5M",
+				"criteria": {
+					"allOf": [{
+						"threshold": 80,
+						"name": "Metric1",
+						"metricNamespace": "Azure.ApplicationInsights",
+						"metricName": "AverageCPUUsage",
+						"operator": "GreaterThan",
+						"timeAggregation": "Average",
+						"criterionType": "StaticThresholdCriterion"
+					}],
+					"odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+				},
+				"autoMitigate": true,
+				"targetResourceType": "microsoft.insights/components",
+				"actions": [{
+						"actionGroupId": "[parameters('actiongroup1_id')]",
+						"webHookProperties": {}
+					}
+
+				]
+			}
+		},
+		{
+			"type": "microsoft.insights/metricAlerts",
+			"apiVersion": "2018-03-01",
+			"name": "[concat (parameters ('custom_domain') , ' - ', 'increasing HTTP request rate')]",
+			"location": "global",
+			"properties": {
+				"severity": 3,
+				"enabled": true,
+				"scopes": [
+					"[parameters('appinsights_id')]"
+				],
+				"evaluationFrequency": "PT5M",
+				"windowSize": "PT5M",
+				"criteria": {
+					"allOf": [{
+						"alertSensitivity": "Low",
+						"failingPeriods": {
+							"numberOfEvaluationPeriods": 4,
+							"minFailingPeriodsToAlert": 4
+						},
+						"name": "Metric1",
+						"metricNamespace": "microsoft.insights/components",
+						"metricName": "performanceCounters/requestsPerSecond",
+						"operator": "GreaterOrLessThan",
+						"timeAggregation": "Average",
+						"criterionType": "DynamicThresholdCriterion"
+					}],
+					"odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+				},
+				"autoMitigate": true,
+				"targetResourceType": "microsoft.insights/components",
+				"actions": [{
+					"actionGroupId": "[parameters('actiongroup1_id')]",
+					"webHookProperties": {}
+				}]
+			}
+		},
+		{
+			"type": "microsoft.insights/metricAlerts",
+			"apiVersion": "2018-03-01",
+			"name": "[concat (parameters ('custom_domain') , ' - ', 'Increasing In Failed Requests')]",
+			"location": "global",
+			"properties": {
+				"severity": 2,
+				"enabled": true,
+				"scopes": [
+					"[parameters('appinsights_id')]"
+				],
+				"evaluationFrequency": "PT5M",
+				"windowSize": "PT5M",
+				"criteria": {
+					"allOf": [{
+						"alertSensitivity": "High",
+						"failingPeriods": {
+							"numberOfEvaluationPeriods": 4,
+							"minFailingPeriodsToAlert": 4
+						},
+						"name": "Metric1",
+						"metricNamespace": "microsoft.insights/components",
+						"metricName": "requests/failed",
+						"operator": "GreaterOrLessThan",
+						"timeAggregation": "Count",
+						"criterionType": "DynamicThresholdCriterion"
+					}],
+					"odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+				},
+				"autoMitigate": true,
+				"targetResourceType": "microsoft.insights/components",
+				"actions": [{
+					"actionGroupId": "[parameters('actiongroup1_id')]",
+					"webHookProperties": {}
+				}]
+			}
+		},
+		{
+			"type": "microsoft.insights/metricAlerts",
+			"apiVersion": "2018-03-01",
+			"name": "[concat (parameters ('custom_domain') , ' - ', 'increasing In Dependency Call Failures')]",
+			"location": "global",
+			"properties": {
+				"severity": 0,
+				"enabled": true,
+				"scopes": [
+					"[parameters('appinsights_id')]"
+				],
+				"evaluationFrequency": "PT5M",
+				"windowSize": "PT5M",
+				"criteria": {
+					"allOf": [{
+						"alertSensitivity": "High",
+						"failingPeriods": {
+							"numberOfEvaluationPeriods": 4,
+							"minFailingPeriodsToAlert": 4
+						},
+						"name": "Metric1",
+						"metricNamespace": "microsoft.insights/components",
+						"metricName": "dependencies/failed",
+						"operator": "GreaterOrLessThan",
+						"timeAggregation": "Count",
+						"criterionType": "DynamicThresholdCriterion"
+					}],
+					"odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+				},
+				"autoMitigate": true,
+				"targetResourceType": "microsoft.insights/components",
+				"actions": [{
+						"actionGroupId": "[parameters('actiongroup1_id')]",
+						"webHookProperties": {}
+					}
+
+				]
+			}
+		},
+		{
+			"type": "microsoft.insights/metricAlerts",
+			"apiVersion": "2018-03-01",
+			"name": "[concat (parameters ('custom_domain') , ' - ', 'Avg server response time is more than 30 seconds')]",
+			"location": "global",
+			"properties": {
+				"severity": 0,
+				"enabled": true,
+				"scopes": [
+					"[parameters('appinsights_id')]"
+				],
+				"evaluationFrequency": "PT5M",
+				"windowSize": "PT5M",
+				"criteria": {
+					"allOf": [{
+						"threshold": 30000,
+						"name": "Metric1",
+						"metricNamespace": "microsoft.insights/components",
+						"metricName": "requests/duration",
+						"operator": "GreaterThan",
+						"timeAggregation": "Average",
+						"criterionType": "StaticThresholdCriterion"
+					}],
+					"odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+				},
+				"autoMitigate": true,
+				"targetResourceType": "microsoft.insights/components",
+				"actions": [{
+						"actionGroupId": "[parameters('actiongroup1_id')]",
+						"webHookProperties": {}
+					}
+
+				]
+			}
+		}
+	]
+}
