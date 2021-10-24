@@ -29,4 +29,6 @@ Template Parameters :
 
 > custom_domain : your website name "ex:azureguru.tech" to be be able to identify whcih mail alert you're recieveing if you have multiple applications and it will also be appended 
 
-at the beginning of the alert name.
+> at the beginning of the alert name.
+
+Note that : One or more alerts may encounter an error while deployment  and this because you're using an old app insights that doesn't contain the metric name specified in the template
