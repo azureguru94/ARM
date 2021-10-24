@@ -1,13 +1,12 @@
 /*
 This template will deploy 7 alerts on application insights as following : 
 
-1-server memory more than 80 %
+1-high server memory usage (dynamic threeshold)
 2-server exceptions (dynamic threeshold)
 3-dependency call failures (dynamic threeshold)
-4-server cpu more than 80 % 
-5-failed requests increasing (dynamic threeshold)
-6-increasing http requests rate (dynamic threeshold)
-7-average server response time more than 30 second
+4-failed requests increasing (dynamic threeshold)
+5-increasing http requests rate (dynamic threeshold)
+6-average server response time more than 30 second
 
 */
 {
@@ -67,7 +66,7 @@ This template will deploy 7 alerts on application insights as following :
 				"autoMitigate": true,
 				"targetResourceType": "microsoft.insights/components",
 				"actions": [{
-						"actionGroupId": "[parameters('actiongroup1_id')]",
+						"actionGroupId": "[parameters('actiongroup_id')]",
 						"webHookProperties": {}
 					}
 
@@ -76,73 +75,46 @@ This template will deploy 7 alerts on application insights as following :
 		},
 
 		{
-			"type": "microsoft.insights/metricAlerts",
-			"apiVersion": "2018-03-01",
-			"name": "[concat (parameters ('custom_domain') , ' - ', 'server memory more than 80 percent')]",
-			"location": "global",
-			"properties": {
-				"severity": 2,
-				"enabled": true,
-				"scopes": [
-					"[parameters('appinsights_id')]"
-				],
-				"evaluationFrequency": "PT1M",
-				"windowSize": "PT5M",
-				"criteria": {
-					"allOf": [{
-						"threshold": 80,
-						"name": "Metric1",
-						"metricNamespace": "Azure.ApplicationInsights",
-						"metricName": "AverageMemoryUsage",
-						"operator": "GreaterThan",
-						"timeAggregation": "Average",
-						"criterionType": "StaticThresholdCriterion"
-					}],
-					"odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
-				},
-				"autoMitigate": true,
-				"targetResourceType": "microsoft.insights/components",
-				"actions": [{
-					"actionGroupId": "[parameters('actiongroup1_id')]",
-					"webHookProperties": {}
-				}]
-			}
+    "type": "microsoft.insights/metricAlerts",
+    "apiVersion": "2018-03-01",
+    "name": "[concat (parameters ('custom_domain') , ' - ', 'High Server Memory Usage')]",
+    "location": "global",
+    "properties": {
+        "severity": 2,
+        "enabled": true,
+        "scopes": [
+            "[parameters('appinsights_id')]"
+        ],
+        "evaluationFrequency": "PT1M",
+        "windowSize": "PT5M",
+        "criteria": {
+            "allOf": [
+                {
+                
+                    "alertSensitivity": "High",
+                    "failingPeriods": {
+                        "numberOfEvaluationPeriods": 4,
+                        "minFailingPeriodsToAlert": 4
+                    },
+                    "name": "Metric1",
+                    "metricNamespace": "microsoft.insights/components",
+                    "metricName": "performanceCounters/memoryAvailableBytes",
+                    "operator": "GreaterThan",
+                    "timeAggregation": "Maximum",
+                    "criterionType": "DynamicThresholdCriterion"
+                }
+            ],
+            "odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+        },
+        "autoMitigate": true,
+        "targetResourceType": "microsoft.insights/components",
+        "actions": [{
+            "actionGroupId": "[parameters('actiongroup_id')]",
+            "webHookProperties": {}
+        }]
+    }
 		},
-		{
-			"type": "microsoft.insights/metricAlerts",
-			"apiVersion": "2018-03-01",
-			"name": "[concat (parameters ('custom_domain') , ' - ', 'server CPU more than 80 percent')]",
-			"location": "global",
-			"properties": {
-				"severity": 2,
-				"enabled": true,
-				"scopes": [
-					"[parameters('appinsights_id')]"
-				],
-				"evaluationFrequency": "PT1M",
-				"windowSize": "PT5M",
-				"criteria": {
-					"allOf": [{
-						"threshold": 80,
-						"name": "Metric1",
-						"metricNamespace": "Azure.ApplicationInsights",
-						"metricName": "AverageCPUUsage",
-						"operator": "GreaterThan",
-						"timeAggregation": "Average",
-						"criterionType": "StaticThresholdCriterion"
-					}],
-					"odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
-				},
-				"autoMitigate": true,
-				"targetResourceType": "microsoft.insights/components",
-				"actions": [{
-						"actionGroupId": "[parameters('actiongroup1_id')]",
-						"webHookProperties": {}
-					}
-
-				]
-			}
-		},
+		
 		{
 			"type": "microsoft.insights/metricAlerts",
 			"apiVersion": "2018-03-01",
@@ -175,7 +147,7 @@ This template will deploy 7 alerts on application insights as following :
 				"autoMitigate": true,
 				"targetResourceType": "microsoft.insights/components",
 				"actions": [{
-					"actionGroupId": "[parameters('actiongroup1_id')]",
+					"actionGroupId": "[parameters('actiongroup_id')]",
 					"webHookProperties": {}
 				}]
 			}
@@ -212,7 +184,7 @@ This template will deploy 7 alerts on application insights as following :
 				"autoMitigate": true,
 				"targetResourceType": "microsoft.insights/components",
 				"actions": [{
-					"actionGroupId": "[parameters('actiongroup1_id')]",
+					"actionGroupId": "[parameters('actiongroup_id')]",
 					"webHookProperties": {}
 				}]
 			}
@@ -249,7 +221,7 @@ This template will deploy 7 alerts on application insights as following :
 				"autoMitigate": true,
 				"targetResourceType": "microsoft.insights/components",
 				"actions": [{
-						"actionGroupId": "[parameters('actiongroup1_id')]",
+						"actionGroupId": "[parameters('actiongroup_id')]",
 						"webHookProperties": {}
 					}
 
@@ -284,7 +256,7 @@ This template will deploy 7 alerts on application insights as following :
 				"autoMitigate": true,
 				"targetResourceType": "microsoft.insights/components",
 				"actions": [{
-						"actionGroupId": "[parameters('actiongroup1_id')]",
+						"actionGroupId": "[parameters('actiongroup_id')]",
 						"webHookProperties": {}
 					}
 
@@ -292,4 +264,5 @@ This template will deploy 7 alerts on application insights as following :
 			}
 		}
 	]
+
 }
