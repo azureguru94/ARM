@@ -31,4 +31,4 @@ Template Parameters :
 
 > at the beginning of the alert name.
 
-Note that : One or more alerts may encounter an error while deployment  and this because you're using an old app insights that doesn't contain the metric name specified in the template
+Note that : you may encounter an error while deploying the template and this because you have an older app insights that doesn't contain the metric name specified in this template , so you can create the alert for this metric manually from the portal.
