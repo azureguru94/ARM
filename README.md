@@ -2,7 +2,7 @@
 
 This template deploys 6 alerts for application insights as following :
 
-> high server memory usage
+> high server memory usage (dynamic threeshold)
 
 > server exceptions (dynamic threeshold)
 
