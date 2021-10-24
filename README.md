@@ -14,7 +14,7 @@ This template deploys 6 alerts for application insights as following :
 
 > average server response time more than 30 second
 
-you can use powershell or template deployment from azure portal 
+you can use powershell or custom template deployment from azure portal 
 
 Template Parameters :
 ---------------------
